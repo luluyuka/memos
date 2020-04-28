@@ -1,0 +1,31 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import datetime as dt
+
+# os.chdir("WorkingDirectory")hh
+df=pd.read_csv("xxxx.csv")
+
+product_code=df['Product_Code']
+product_code=product_code.drop_duplicates()
+product_code=list(product_code)
+
+plt.style.use('ggplot') 
+font = {'family' : 'meiryo'}
+matplotlib.rc('font', **font)
+
+OrderData=df[['Product_Code','OrderDate','OrderQty']]
+
+for i in product_code:
+    try:
+        temp=OrderData.loc[OrderData['Product_Code']==i]
+        temp.plot.bar(y=['OrderQty'], alpha=1, figsize=(20,10))
+        plt.title(i, size=16)
+        os.chdir(r'Directory_To_Want_To_Store')
+        plt.savefig(i)
+        temp=pd.DataFrame()
+    except:
+        pass
