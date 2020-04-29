@@ -1,0 +1,18 @@
+import pandas as pd
+import os
+os.chdir(r'xxxx')
+data=pd.read_csv('time_series_data.csv', usecols=['date', 'qty'])
+data.head()
+
+from matplotlib import pylab as plt
+df = data.set_index('date')
+plt.scatter(df.index, df['qty'])
+# plt.xticks(rotation=70)
+plt.show()
+
+import statsmodels.api as sm
+df=data.values
+fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
+sm.graphics.tsa.plot_acf(df.pv, lags=40, ax=ax1)
+sm.graphics.tsa.plot_pacf(df.pv, lags=40, ax=ax2)
+
