@@ -1,0 +1,68 @@
+import os
+import pandas as pd
+from scipy import stats
+# 統計モデル
+import statsmodels.api as sm
+import numpy as np
+
+from matplotlib import pylab as plt
+import seaborn as sns
+%matplotlib inline
+sns.set()
+from matplotlib.pylab import rcParams
+rcParams['figure.figsize'] = 15, 6
+
+from statsmodels.tsa.arima_model import ARIMA
+
+
+os.chdir(r'C:\Users\f_yamamoto\OneDrive - 株式会社オーディオテクニカ\1_【調達課】\5_計算資料\1_仕組み改善\TEPROS_DATA')
+demand_record=pd.read_csv('demand_record.csv', encoding="shift-jis")
+ddate_record=demand_record['日付']
+dqty_record=abs(demand_record['数量'])
+past_demand=pd.DataFrame({'date':ddate_record,'qty':dqty_record})
+
+# procure_record=pd.read_csv('procurement_record.csv', encoding="shift-jis")
+# pdate_record=procure_record['日付']
+# pqty_record=procure_record['数量']
+# past_procure=pd.DataFrame({'date':pdate_record,'qty':pqty_record})
+
+plan_record=pd.read_csv('balance.csv', encoding="shift-jis")
+pldata_record=plan_record['日付']
+plqty_record=plan_record['デマンド数']
+plan=pd.DataFrame({'date':pldata_record,'qty':plqty_record})
+
+demand_data=pd.concat([past_demand,plan])
+demand_data.reset_index(drop=True, inplace=True)
+
+for i in range(len(demand_data)):
+    if demand_data['qty'][i]==0:
+        demand_data=demand_data.drop(i)
+
+demand_data['date'] = pd.to_datetime(demand_data['date'],format='%Y-%m-%d')
+# year=demand_data['date'].dt.year
+# year=pd.DataFrame({'year':year})
+# month=demand_data['date'].dt.month
+# month=pd.DataFrame({'month':month})
+# group_data=pd.concat([year, month, demand_data], axis=1)
+# merge_data=group_data.groupby(['year','month']).sum()
+
+empty_data=pd.date_range(start='1/1/2017', end='3/1/2019', freq='D')
+zero=np.zeros(len(empty_data))
+empty=pd.DataFrame({'date':empty_data,'qty':zero})
+# data=pd.concat(merge_data,empty)
+merge=pd.concat([demand_data,empty])
+data=merge.groupby('date').sum().reset_index()
+#data
+
+degree=arma_order_select_ic(demand_data,)
+ts=data.values
+from statsmodels.tsa.arima_model import ARIMA
+ARIMA_3_1_2 = ARIMA(ts, order=(3, 1, 2)).fit(dist=False)
+ARIMA_3_1_2.params
+
+# model = pf.ARIMA(data=data, ar=4, ma=4, target='sunspot.year', family=pf.Normal())
+
+df = data.set_index('date')
+plt.scatter(df.index, df['qty'])
+plt.xticks(rotation=70)
+plt.show()
