@@ -1,0 +1,36 @@
+from sklearn import preprocessing
+mm = preprocessing.MinMaxScaler()
+data9=mm.fit_transform(full)
+
+from sklearn.decomposition import PCA
+pca = PCA(n_components=2)
+dat1=pca.fit(full).transform(full)
+dat1
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+
+distortions = []
+
+for i  in range(1,11):                # 1~10クラスタまで一気に計算 
+    km = KMeans(n_clusters=i,         # クラスターの個数
+                init='k-means++',     # k-means++法によりクラスタ中心を選択
+                n_init=10,            # 異なるセントロイドの初期値を用いたk-meansの実行回数 default: '10' 実行したうちもっとSSE値が小さいモデルを最終モデルとして選択
+                max_iter=300,         # k-meansアルゴリズムの内部の最大イテレーション回数  default: '300'
+                random_state=0)       # セントロイドの初期化に用いる乱数発生器の状態
+    km.fit(full)                         # クラスタリングの計算を実行
+    distortions.append(km.inertia_)   # km.fitするとkm.inertia_が求まる
+    y_km = km.fit_predict(full)
+
+plt.plot(range(1,11),distortions,marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('Distortion')
+plt.show()
+
+from sklearn.cluster import KMeans   
+km = KMeans(n_clusters=5)
+km.fit(dat1)
+dat2 = km.predict(dat1)
+
+plt.scatter(dat1[:,0],dat1[:,1],c=dat2)
+plt.colorbar()
